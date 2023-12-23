@@ -1,30 +1,86 @@
 <template>
-  <div class="q-pa-md">
-    <h2>Main</h2>
+  <div class="tickets q-pa-md">
+    <q-table
+      class="tickets__table"
+      title="Tickets"
+      :rows="row"
+      :columns="column"
+      row-key="name"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 type RowType = { name: string };
+type AlignType = 'left' | 'right' | 'center';
 import { ref } from 'vue';
-
+const column = [
+  {
+    name: 'author',
+    required: true,
+    label: 'Author',
+    field: 'author',
+    sortable: true,
+    align: 'left' as AlignType,
+  },
+  {
+    name: 'id',
+    required: true,
+    label: 'Ticket id',
+    field: 'id',
+    sortable: true,
+    align: 'left' as AlignType,
+  },
+  {
+    name: 'title',
+    required: true,
+    label: 'Title',
+    field: 'title',
+    sortable: true,
+    align: 'left' as AlignType,
+  },
+  {
+    name: 'description',
+    required: true,
+    label: 'Description',
+    field: 'description',
+    sortable: true,
+    align: 'left' as AlignType,
+  },
+  {
+    name: 'createdAt',
+    required: true,
+    label: 'Created at',
+    field: 'createdAt',
+    sortable: true,
+    align: 'left' as AlignType,
+  },
+  {
+    name: 'more',
+    required: false,
+    label: 'More',
+    field: 'more',
+    sortable: false,
+    align: 'left' as AlignType,
+  },
+];
 const columns = [
-  // {
-  //   name: 'name',
-  //   required: true,
-  //   label: 'Dessert (100g serving)',
-  //   align: 'left',
-  //   field: (row: RowType) => row.name,
-  //   format: (val: any) => `${val}`,
-  //   sortable: true,
-  // },
-  // {
-  //   name: 'calories',
-  //   align: 'center',
-  //   label: 'Calories',
-  //   field: 'calories',
-  //   sortable: true,
-  // },
+  {
+    name: 'name',
+    required: true,
+    label: 'Dessert (100g serving)',
+    // align: 'left',
+    field: (row: RowType) => row.name,
+    format: (val: string | number) => `${val}`,
+    sortable: true,
+  },
+  {
+    name: 'calories',
+    // align: 'center',
+    label: 'Calories',
+    field: 'calories',
+    sortable: true,
+  },
   { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
   { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
   { name: 'protein', label: 'Protein (g)', field: 'protein' },
@@ -44,7 +100,16 @@ const columns = [
     // sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
 ];
-
+const row = [
+  {
+    author: 'Marcus Gibiscus',
+    id: '34532',
+    title: 'Rome and grill',
+    description: 'Something about grill in Rome',
+    createdAt: '2023-12-23',
+    more: 'More',
+  },
+];
 const rows = [
   {
     name: 'Frozen Yogurt',
@@ -151,3 +216,19 @@ const rows = [
 const columnArr = ref(columns);
 const rowArr = ref(rows);
 </script>
+<style lang="scss">
+.tickets {
+  &__table {
+    & td:first-child {
+      background-color: #3f51b5;
+      color: #fff;
+    }
+    & tr th {
+      position: sticky;
+      z-index: 2;
+      background: #0090ce;
+      color: #fff;
+    }
+  }
+}
+</style>
