@@ -66,9 +66,6 @@ const essentialLinks: EssentialLinkProps[] = [
 ];
 const currentPath = ref(window.location.pathname);
 const leftDrawerOpen = ref(false);
-// const currentRoute = computed(() => {
-//   return essentialLinks;
-// });
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;

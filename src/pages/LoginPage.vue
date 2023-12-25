@@ -68,8 +68,8 @@ const onSubmit = () => {
     icon: 'cloud_done',
     message: 'Success',
   });
-  console.log(postData);
-  console.log('$q', $q);
+  localStorage.setItem('isLogged', 'true');
+  localStorage.setItem('userData', postData.name);
   setTimeout(() => {
     router.push('/');
   }, 1000);

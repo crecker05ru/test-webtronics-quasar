@@ -3,17 +3,126 @@
     <q-table
       class="tickets__table"
       title="Tickets"
-      :rows="row"
+      :rows="db"
       :columns="column"
       row-key="name"
-    />
+      v-if="!isDetailsOpened"
+      binary-state-sort
+      :rows-per-page-options="[5, 10, 20]"
+      rows-per-page-label="10"
+      :filter="filterAuthor"
+      :loading="isTableloading"
+      @request="onRequest"
+    >
+      <template v-slot:top-right>
+        <q-input
+          borderless
+          dense
+          debounce="300"
+          v-model="filterAuthor"
+          placeholder="Search by author"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template>
+
+      <template v-slot:header="props">
+        <q-tr>
+          <q-th v-for="col in props.cols" :key="col.name" :props="props">
+            {{ col.label }}</q-th
+          >
+          <q-th> </q-th>
+        </q-tr>
+      </template>
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td v-for="col in props.cols" :key="col.name" :props="props">
+            <template v-if="col.name !== 'url'">
+              {{ col.value }}
+            </template>
+            <q-btn
+              v-else
+              color="purple"
+              label="More"
+              @click="showTicketDetails(col.value)"
+            />
+          </q-td>
+        </q-tr>
+        <!-- <q-tr v-show="props.expand" :props="props">
+          <q-td colspan="100%">
+            <div class="text-left">This is expand slot for row above: {{ props.row.name }}.</div>
+          </q-td>
+        </q-tr> -->
+      </template>
+    </q-table>
+    <template v-else
+      ><TicketDescription
+        v-if="currentTicketDetails"
+        :data="currentTicketDetails"
+        @close-ticket="closeTicketDetails"
+    /></template>
   </div>
 </template>
 
 <script setup lang="ts">
-type RowType = { name: string };
+import { onMounted, ref } from 'vue';
+import TicketDescription from 'src/components/TicketDescription.vue';
+
 type AlignType = 'left' | 'right' | 'center';
-import { ref } from 'vue';
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  genre: string;
+  description: string;
+  isbn: string;
+  image: string;
+  published: string | Date;
+  publisher: string;
+}
+
+export interface Ticket {
+  author: string;
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string | Date;
+  url: string;
+}
+
+const db = ref<Ticket[]>();
+const isDetailsOpened = ref(false);
+const filterAuthor = ref('');
+const currentTicketDetails = ref<Ticket | undefined>();
+const isTableloading = ref(false);
+const showTicketDetails = (id: string) => {
+  isDetailsOpened.value = true;
+  currentTicketDetails.value = db.value?.find((item) => item.id === id);
+};
+
+const closeTicketDetails = () => {
+  isDetailsOpened.value = false;
+  currentTicketDetails.value = undefined;
+};
+
+const onRequest = () => {
+  isTableloading.value = true;
+
+  setTimeout(() => {
+    const filteredData = db.value?.filter((item) => {
+      item.author.includes(filterAuthor.value);
+    });
+
+    if (filteredData && filteredData?.length) {
+      db.value?.splice(0, db.value?.length, ...filteredData);
+    }
+
+    isTableloading.value = false;
+  }, 700);
+};
+
 const column = [
   {
     name: 'author',
@@ -43,8 +152,8 @@ const column = [
     name: 'description',
     required: true,
     label: 'Description',
-    field: 'description',
-    sortable: true,
+    field: (row: Ticket) => row?.description.slice(0, 20),
+    sortable: false,
     align: 'left' as AlignType,
   },
   {
@@ -56,165 +165,32 @@ const column = [
     align: 'left' as AlignType,
   },
   {
-    name: 'more',
+    name: 'url',
     required: false,
-    label: 'More',
-    field: 'more',
+    label: '',
+    field: (row: Ticket) => row?.id,
     sortable: false,
     align: 'left' as AlignType,
   },
 ];
-const columns = [
-  {
-    name: 'name',
-    required: true,
-    label: 'Dessert (100g serving)',
-    // align: 'left',
-    field: (row: RowType) => row.name,
-    format: (val: string | number) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: 'calories',
-    // align: 'center',
-    label: 'Calories',
-    field: 'calories',
-    sortable: true,
-  },
-  { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-  { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-  { name: 'protein', label: 'Protein (g)', field: 'protein' },
-  { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-  {
-    name: 'calcium',
-    label: 'Calcium (%)',
-    field: 'calcium',
-    sortable: true,
-    // sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
-  },
-  {
-    name: 'iron',
-    label: 'Iron (%)',
-    field: 'iron',
-    sortable: true,
-    // sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
-  },
-];
-const row = [
-  {
-    author: 'Marcus Gibiscus',
-    id: '34532',
-    title: 'Rome and grill',
-    description: 'Something about grill in Rome',
-    createdAt: '2023-12-23',
-    more: 'More',
-  },
-];
-const rows = [
-  {
-    name: 'Frozen Yogurt',
-    calories: 159,
-    fat: 6.0,
-    carbs: 24,
-    protein: 4.0,
-    sodium: 87,
-    calcium: '14%',
-    iron: '1%',
-  },
-  {
-    name: 'Ice cream sandwich',
-    calories: 237,
-    fat: 9.0,
-    carbs: 37,
-    protein: 4.3,
-    sodium: 129,
-    calcium: '8%',
-    iron: '1%',
-  },
-  {
-    name: 'Eclair',
-    calories: 262,
-    fat: 16.0,
-    carbs: 23,
-    protein: 6.0,
-    sodium: 337,
-    calcium: '6%',
-    iron: '7%',
-  },
-  {
-    name: 'Cupcake',
-    calories: 305,
-    fat: 3.7,
-    carbs: 67,
-    protein: 4.3,
-    sodium: 413,
-    calcium: '3%',
-    iron: '8%',
-  },
-  {
-    name: 'Gingerbread',
-    calories: 356,
-    fat: 16.0,
-    carbs: 49,
-    protein: 3.9,
-    sodium: 327,
-    calcium: '7%',
-    iron: '16%',
-  },
-  {
-    name: 'Jelly bean',
-    calories: 375,
-    fat: 0.0,
-    carbs: 94,
-    protein: 0.0,
-    sodium: 50,
-    calcium: '0%',
-    iron: '0%',
-  },
-  {
-    name: 'Lollipop',
-    calories: 392,
-    fat: 0.2,
-    carbs: 98,
-    protein: 0,
-    sodium: 38,
-    calcium: '0%',
-    iron: '2%',
-  },
-  {
-    name: 'Honeycomb',
-    calories: 408,
-    fat: 3.2,
-    carbs: 87,
-    protein: 6.5,
-    sodium: 562,
-    calcium: '0%',
-    iron: '45%',
-  },
-  {
-    name: 'Donut',
-    calories: 452,
-    fat: 25.0,
-    carbs: 51,
-    protein: 4.9,
-    sodium: 326,
-    calcium: '2%',
-    iron: '22%',
-  },
-  {
-    name: 'KitKat',
-    calories: 518,
-    fat: 26.0,
-    carbs: 65,
-    protein: 7,
-    sodium: 54,
-    calcium: '12%',
-    iron: '6%',
-  },
-];
 
-const columnArr = ref(columns);
-const rowArr = ref(rows);
+onMounted(() => {
+  (async () => {
+    const resp = await fetch('/db/tickets.json');
+    const body: Book[] = await resp.json();
+    db.value = body.map((item) => {
+      const formated: Ticket = {
+        author: item.author,
+        id: String(item.id),
+        title: item.title,
+        description: item.description,
+        createdAt: item.published,
+        url: `tickets/${item.id}`,
+      };
+      return formated;
+    });
+  })();
+});
 </script>
 <style lang="scss">
 .tickets {

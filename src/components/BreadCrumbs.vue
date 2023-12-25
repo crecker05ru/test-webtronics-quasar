@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md q-gutter-sm">
     <q-breadcrumbs active-color="white">
-      <q-breadcrumbs-el
+      <!-- <q-breadcrumbs-el
         active-class="active-link_color__orange"
         :label="currentChildUrl"
         icon="widgets"
@@ -15,46 +15,67 @@
         to="/"
         tag="a"
         v-else
+      /> -->
+      <q-breadcrumbs-el
+        active-class="active-link_color__orange"
+        :label="mainPathFormated"
+        icon="home"
+        :to="'/' + mainPath"
+        tag="a"
+        v-if="mainPathFormated"
       />
+      <q-breadcrumbs-el
+        active-class="active-link_color__orange"
+        label="Home"
+        icon="home"
+        to="/"
+        tag="a"
+        v-else
+      />
+      <q-breadcrumbs-el
+        active-class="active-link_color__orange"
+        :label="childrenPath"
+        :to="childrenPath"
+        tag="a"
+        v-if="childrenPath"
+      />
+      <template> </template>
+      <template> </template>
     </q-breadcrumbs>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 type RoutesLinksType = {
   [key: string]: string;
 };
 
 const router = useRouter();
-const route = useRoute();
 const routesLinks: RoutesLinksType = {
   tickets: 'Tickets',
+  ticket: 'Ticket',
   login: 'Login',
   profile: 'Profile',
 };
 
-// const currentPath = ref<string>(window.location.pathname);
-const currentHashPath = ref<string>(window.location.hash);
-// const currentHashPath = computed<string>(() => {
-//   console.log('window.location.hash', window.location.hash);
-//   return window.location.hash;
-// });
+const filteredStringUrl = computed(() => {
+  const filteredString = router.currentRoute.value.path
+    .replace('/', ' ')
+    .split('/');
+  return filteredString;
+});
 
-const currentChildUrl = computed(() => {
-  const filteredString = router.currentRoute.value.path.replace(/\//g, '');
-  return routesLinks[filteredString];
+const mainPath = computed(() => {
+  return filteredStringUrl.value[0].trim();
 });
-watch(currentHashPath, (newVal) => {
-  // currentHashPath.value = window.location.hash;
-  console.log('currentHashPath.value', currentHashPath.value);
-  console.log('newVa', newVal);
-  console.log('currentChildUrl.value', currentChildUrl.value);
+
+const mainPathFormated = computed(() => {
+  return routesLinks[filteredStringUrl.value[0].trim()];
 });
-onMounted(() => {
-  console.log(route.hash);
-  console.log(router.currentRoute.value.path);
+const childrenPath = computed(() => {
+  return filteredStringUrl.value[1];
 });
 </script>
 <style lang="scss">

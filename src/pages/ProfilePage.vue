@@ -36,21 +36,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasar } from 'quasar';
-import { useRouter } from 'vue-router';
 const userData = {
-  information: 'Иноформация',
-  name: 'Гена',
-  surname: 'Апельсинов',
-  birthDate: '1999-02-07',
-  city: 'Город',
+  information: 'Information',
+  name: 'Anvar',
+  surname: 'Abduragimov',
+  birthDate: '1991-02-12',
+  city: 'St.Peterburg',
 };
 
-const cities = ref(['Luxemburg', 'Marcel', 'London', 'Moscow']);
-const choosenCity = ref('Marcel');
-const $q = useQuasar();
-const name = ref<string>('');
-const password = ref<string>('');
-const isPassword = ref<boolean>(true);
-const router = useRouter();
+const cities = ref(['Luxemburg', 'Marcel', 'London', 'Moscow', 'St.Peterburg']);
+const choosenCity = ref(userData.city);
 </script>
